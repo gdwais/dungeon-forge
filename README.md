@@ -38,12 +38,36 @@ DungeonForge is built using TypeScript and Node.js with the following components
    npm install
    ```
 
-3. Build the project:
+3. Set up required files (not included in the repository):
+   
+   Create a `.env` file in the root directory based on the provided `.env.example`:
+   ```
+   NODE_ENV=development
+   DATABASE_URL="postgresql://admin:password@localhost:5005/dungeonforge"
+   CHROMA_URL="http://localhost:8005"
+   TAVILY_API_KEY="your_tavily_api_key_here"
+   OPEN_AI_API_KEY="your_openai_api_key_here"
+   ```
+
+   Create a `data` directory in the root folder for document storage:
+   ```
+   mkdir -p data/documents
+   ```
+
+   Add your D&D reference documents in PDF format to the `data/documents` folder. These will be used by the RAG system for rule lookups.
+
+   If you're using Docker for the database and vector store:
+   ```
+   docker-compose up -d
+   ```
+   This will start the PostgreSQL database and ChromaDB vector store services.
+
+4. Build the project:
    ```
    npm run build
    ```
 
-4. Start the application:
+5. Start the application:
    ```
    npm start
    ```
@@ -55,11 +79,25 @@ For development with automatic reloading:
 
 ## Usage
 
-Once running, DungeonForge can help with:
+DungeonForge provides a command-line interface with the following commands:
 
-- Creating new characters with `!create character`
-- Looking up rules with `!rules [topic]`
-- Generating story hooks with `!hook [theme]`
-- Developing character backstories with `!backstory [character name]`
+- **Roll dice**: Roll dice using standard D&D notation
+  ```
+  forge roll 2d6+3
+  forge roll 1d20
+  ```
+
+- **Look up rules**: Search for D&D rules and information
+  ```
+  forge lookup "strength check"
+  forge lookup "wizard spells"
+  ```
+
+- **Help**: Display available commands
+  ```
+  forge help
+  ```
+
+The tool will stream responses in real-time with proper formatting for better readability.
 
 ## Project Structure 
