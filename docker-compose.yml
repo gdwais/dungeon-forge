@@ -1,0 +1,29 @@
+version: "3.8"
+
+volumes:
+  db:
+  chroma-dungeonforge:
+
+services:
+  db:
+    image: "postgres:13.5-alpine3.15"
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata/dungeonforge
+      - POSTGRES_DB=dungeonforge
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - db:/var/lib/postgresql/data/pgdata/dungeonforge
+    ports:
+      - "5005:5432"
+      - "5432:5432"
+  chromadb:
+    image: ghcr.io/chroma-core/chroma:latest
+    environment:
+      - IS_PERSISTENT=TRUE
+    volumes:
+      # Default configuration for persist_directory in chromadb/config.py
+      # Currently it's located in "/chroma/chroma/"
+      - chroma-dungeonforge:/chroma/chroma/
+    ports:
+      - 8005:8000
