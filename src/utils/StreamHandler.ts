@@ -108,6 +108,9 @@ export const extractContentFromChunk = (chunk: StreamChunk): {
   let isSystemMessage = false;
   let systemMessageInfo = '';
   
+  // Debug log the entire chunk for troubleshooting
+  // console.log('Processing chunk:', JSON.stringify(chunk, null, 2));
+  
   // Check if content is in tools.messages
   if (chunk.tools?.messages && Array.isArray(chunk.tools.messages)) {
     for (const message of chunk.tools.messages) {
@@ -157,8 +160,9 @@ export const extractContentFromChunk = (chunk: StreamChunk): {
   }
   
   // Fallback: check if content is directly in the chunk
-  if (!chunkContent && chunk.content && typeof chunk.content === 'string') {
-    chunkContent = chunk.content;
+  if (chunk.content && typeof chunk.content === 'string') {
+    // Always add the content, even if we've already found content elsewhere
+    chunkContent += chunk.content;
   }
   
   return { chunkContent, isSystemMessage, systemMessageInfo };
@@ -179,16 +183,8 @@ export const processStream = async (
   } = {}
 ): Promise<void> => {
   const { 
-    debugMode = false,
-    headerText = '\n╔══════════════════ RESULT ══════════════════╗',
-    footerText = '╚═══════════════════════════════════════════╝',
-    textWidth = 100
+    debugMode = false
   } = options;
-  
-  // Print header
-  console.log(chalk.magenta.bold(headerText));
-  
-  let content = '';
   
   // Process the stream chunks
   for await (const chunk of stream) {
@@ -197,43 +193,16 @@ export const processStream = async (
       console.log('Chunk structure:', JSON.stringify(chunk, null, 2));
     }
     
-    const { chunkContent, isSystemMessage, systemMessageInfo } = extractContentFromChunk(chunk);
+    // Extract content from the chunk
+    const { chunkContent } = extractContentFromChunk(chunk);
     
-    // If this is a system message, print an abbreviated result
-    if (isSystemMessage) {
-      console.log(chalk.dim(`[System: ${systemMessageInfo}]`));
-    }
-    
-    // If we found content, process it
+    // If we found content, print it directly without any formatting
     if (chunkContent) {
-      // Accumulate content
-      content += chunkContent;
-      
-      // Check if we have complete paragraphs to display
-      if (content.includes('\n\n')) {
-        const parts = content.split('\n\n');
-        // Keep the last part (potentially incomplete paragraph) for the next iteration
-        const lastPart = parts.pop() || '';
-        
-        // Process complete paragraphs
-        for (const paragraph of parts) {
-          formatAndPrintParagraph(paragraph, textWidth);
-        }
-        
-        // Update content with the remaining incomplete paragraph
-        content = lastPart;
-      }
+      // Print the raw content
+      process.stdout.write(chunkContent);
     }
   }
   
-  // Process any remaining content after the stream ends
-  if (content.trim()) {
-    const paragraphs = content.split('\n\n');
-    for (const paragraph of paragraphs) {
-      formatAndPrintParagraph(paragraph, textWidth);
-    }
-  }
-  
-  // Print footer
-  console.log(chalk.magenta.bold(footerText));
+  // Add a final line break
+  process.stdout.write('\n');
 }; 

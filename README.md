@@ -18,6 +18,22 @@ DungeonForge is built using TypeScript and Node.js with the following components
 - **In-Memory Store**: Maintains session state and remembers character information
 - **AI Generation**: Creates narratives, character concepts, and gameplay suggestions
 
+### Agent Workflow
+
+The DungeonForge agent uses a sophisticated LangGraph workflow:
+
+1. **Query Rewriting**: Improves the user's question to better retrieve relevant information
+2. **Agent Decision**: Determines whether to retrieve information or generate an answer directly
+3. **Tool Usage**: Uses tools like document search, web search, and date retrieval as needed
+4. **Relevance Checking**: Evaluates whether retrieved documents are relevant to the query
+5. **Answer Generation**: Creates comprehensive, detailed responses based on retrieved information
+
+This workflow ensures high-quality responses by:
+- Reformulating queries for better retrieval
+- Checking document relevance before answering
+- Trying again with different retrieval strategies when needed
+- Using specialized prompts for final answer generation
+
 ## Getting Started
 
 ### Prerequisites
